@@ -1,11 +1,14 @@
+{{- range  $application := .Values.applications.configs}}
+
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: webserver-service
+  name: webserver-service-{{ $application.image }}
 
 spec:
   # ingress 経由なのでクラスタ内に閉じておく
-  type: NodePort
+  type: {{ $application.type }}
   selector:
     # これにマッチした pod に流す
     app: hello-rails-on-k8s
@@ -22,12 +25,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webserver-deployment
+  name: webserver-deployment-{{ $application.image }}
   labels:
     app: hello-rails-on-k8s
 
 spec:
-  replicas: 1
+  replicas: {{ $application.replicas }}
   selector:
     matchLabels:
       app: hello-rails-on-k8s
@@ -43,7 +46,7 @@ spec:
           emptyDir: {}
       containers:
         - name: nginx
-          image: hello-rails-on-k8s-nginx:latest
+          image: hello-rails-on-k8s-nginx:{{ $application.image }} 
           imagePullPolicy: Never
           ports:
             # service から受けるポート
@@ -54,7 +57,7 @@ spec:
               name: sockets
 
         - name: rails
-          image: hello-rails-on-k8s-app:latest
+          image: hello-rails-on-k8s-app:{{ $application.image }}
           # デフォルトで pull しにいってコケるので Never させないようにする
           imagePullPolicy: Never
           env:
@@ -63,3 +66,4 @@ spec:
           volumeMounts:
             - mountPath: /sockets
               name: sockets
+{{- end }}

@@ -1,0 +1,12 @@
+applications:
+  configs:
+   - type: NodePort
+     replicas: 1
+     image: v2
+#   - type: NodePort
+#     replicas: 1
+#     image: latest
+#   - type: ClusterIP
+#     replicas: 1
+#     image: v1
+
